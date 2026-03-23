@@ -1,0 +1,95 @@
+目前完整的訓練流程
+
+  啟動遊戲 + 進大廳
+      ↓
+  python src/train.py
+      ↓
+  手動進入 GG_False_Knight
+      ↓
+  AI 開始操控（每 100ms 一個動作）
+      ↓
+  死亡 / 贏 → 手動重置，再進 Boss 房
+      ↓
+  每 5000 步自動存檔
+      ↓
+  中斷後用 resume_train.py 繼續
+
+實作日誌 — Hollow Knight AI 第一階段
+
+  ---
+  專案目標
+
+  用強化學習訓練 AI 打贏 Hollow Knight 的 Boss（目標：尋神者模式 Hornet）。
+  最終設計：畫面擷取 + HP 數值觀測，純離散動作空間，PPO 演算法。
+
+  ---
+  本次完成的工作
+
+  1. 動作執行模組 src/hk_action.py
+
+  - 使用 pynput 模擬鍵盤輸入（Windows 鍵盤 > 手把模擬，不需驅動）
+  - 設計 13 個離散動作：移動、跳躍（小跳/大跳）、攻擊、衝刺及組合動作
+  - 每個按鍵有獨立的 hold_ms，實現跳躍高度精細控制（小跳 25ms / 大跳 100ms）
+  - 每個 step 固定 100ms，保持 RL 時間基準一致
+  - release_all() 防止鍵盤卡鍵
+
+  2. Gym 環境 src/hk_env.py
+
+  - 封裝成標準 gymnasium.Env 介面，可接 SB3 任何演算法
+  - Observation：Dict 空間，screen（84×84×1 灰階，目前全黑佔位符）+ stats（HP 百分比）
+  - Action：Discrete(13)
+  - Reward 設計：Boss 傷害 ×5 / 受傷 ×(-10) / 時間懲罰 -0.01 / 勝利 ±20
+  - terminated vs truncated 正確分離
+  - 最短局時保護（MIN_EPISODE_STEPS=30）：防止入場動畫誤判為 WIN
+  - Boss HP 穩定等待（BOSS_STABLE_SECS=1.0）：確保 Boss 完全生成再開始
+
+  3. 訓練腳本 src/train.py / src/resume_train.py
+
+  - PPO + MultiInputPolicy（CNN 處理畫面，MLP 處理數值，自動合併）
+  - GPU 自動偵測
+  - 每 5000 步自動存 checkpoint
+  - TensorBoard 日誌整合
+  - resume_train.py 支援從任意 checkpoint 繼續訓練
+
+  4. 自訂 Callback src/callbacks.py
+
+  - 每局結束印出即時摘要（ASCII Boss 傷害進度條）
+  - 每 10 局印滾動統計（勝率、平均傷害、最佳 reward）
+  - 自訂 TensorBoard 指標：episode/reward、episode/win_rate、episode/boss_dmg_pct、episode/steps
+
+  5. 環境驗證腳本 src/check_env.py
+
+  - 用 Mock 替換 TCP 連線和鍵盤，不開遊戲就能測試
+  - SB3 官方 check_env() 驗證通過
+  - 手動測試 Observation 格式、Reward 邏輯、動作空間
+
+  ---
+  遇到的問題與解法
+
+  ┌───────────────────────────┬───────────────────────────────────────────────┬────────────────────────────────────┐
+  │           問題            │                     原因                      │                解法                │
+  ├───────────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────┤
+  │ 假騎士 3 步誤判 WIN       │ BossTracker 鎖到臨時物件（False Knight        │ 換 Hornet + 最短局時保護           │
+  │                           │ New，260 HP）                                 │                                    │
+  ├───────────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────┤
+  │ none HP=0/0 被當作 Boss   │ 穩定等待邏輯在 HP=0 時也會通過                │ 穩定後加驗 HP>0，否則重新等待      │
+  │ 就緒                      │                                               │                                    │
+  ├───────────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────┤
+  │ 模型學到錯誤行為          │ 用帶 bug 的假騎士訓練了數局                   │ 刪除舊 checkpoints，換 Hornet      │
+  │                           │                                               │ 重新開始                           │
+  └───────────────────────────┴───────────────────────────────────────────────┴────────────────────────────────────┘
+
+  ---
+  目前狀態
+
+  [完成] HKAIBridge Mod    — 遊戲狀態推送（TCP port 11000）
+  [完成] hk_client.py      — TCP 接收
+  [完成] hk_action.py      — 鍵盤輸入（13 個動作）
+  [完成] hk_env.py         — Gym 環境（含防護機制）
+  [完成] train.py          — PPO 訓練主腳本
+  [完成] resume_train.py   — 續訓腳本
+  [完成] callbacks.py      — 即時訓練監控
+  [完成] check_env.py      — 環境驗證（全部通過）
+
+  [待做] 螢幕擷取           — 取代全黑佔位符（_get_screen 方法已預留）
+  [待做] 自動重置（Phase2） — Mod 加入 goto_scene 指令

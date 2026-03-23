@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# 訓練產出（模型大檔不上傳）
+checkpoints/
+logs/
+
+# Cutie / OC-STORM（外部框架，各自有自己的 repo）
+Cutie/
+OC-STORM/
+
+# 截圖與暫存
+*.png
+*.jpg
+hp_address.txt
+
+# 系統
+.DS_Store
+Thumbs.db

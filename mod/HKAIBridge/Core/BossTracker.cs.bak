@@ -1,0 +1,96 @@
+using System;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace HKAIBridge.Core
+{
+    /// <summary>
+    /// 追蹤尋神者模式（GG_ 場景）中 Boss 的血量變化
+    ///
+    /// 識別策略：
+    ///   1. 偵測場景名稱是否以 "GG_" 開頭
+    ///   2. Hook HealthManager.Start — 場景中血量最高的物件視為 Boss
+    ///   3. Hook HealthManager.TakeDamage — Boss 被打時推送狀態
+    ///
+    /// 延展性設計：
+    ///   - hpPct (0.0~1.0) 讓模型無需關心絕對數值，便於跨 Boss 泛化
+    ///   - maxHp 在 Boss 首次出現時快取，即使 Boss 進入多段 Phase 也不遺失
+    /// </summary>
+    public class BossTracker
+    {
+        private readonly Action _onChanged;
+
+        private HealthManager? _boss;
+        private int _cachedMaxHp;
+        private int _lastHp;
+
+        // 血量低於此值的物件視為雜兵，忽略（可依需求調整）
+        private const int MinBossHp = 100;
+
+        public bool   IsActive  => _boss != null;
+        public int    CurrentHp => _boss?.hp ?? 0;
+        public int    MaxHp     => _cachedMaxHp;
+        public string BossName  => _boss?.gameObject?.name ?? "none";
+
+        public BossTracker(Action onChanged)
+        {
+            _onChanged = onChanged;
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+            On.HealthManager.Start        += OnHealthManagerStart;
+            On.HealthManager.TakeDamage   += OnHealthManagerTakeDamage;
+        }
+
+        // 場景切換時重置追蹤狀態
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (!scene.name.StartsWith("GG_"))
+            {
+                _boss         = null;
+                _cachedMaxHp  = 0;
+                _lastHp       = 0;
+            }
+        }
+
+        // 每個 HealthManager 啟動時評估是否為 Boss
+        private void OnHealthManagerStart(On.HealthManager.orig_Start orig, HealthManager self)
+        {
+            orig(self);
+
+            string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (!scene.StartsWith("GG_")) return;
+            if (self.hp < MinBossHp)      return;
+
+            // 選擇血量最高的物件作為主 Boss（覆蓋舊的）
+            if (_boss == null || self.hp > _cachedMaxHp)
+            {
+                _boss        = self;
+                _cachedMaxHp = self.hp;
+                _lastHp      = self.hp;
+                Modding.Logger.Log($"[HKAIBridge] Boss detected: {self.gameObject.name} HP={self.hp}");
+                _onChanged();
+            }
+        }
+
+        // Boss 被打時偵測 HP 變化
+        private void OnHealthManagerTakeDamage(
+            On.HealthManager.orig_TakeDamage orig,
+            HealthManager self,
+            HitInstance hitInstance)
+        {
+            orig(self, hitInstance);
+
+            if (self != _boss)         return;
+            if (self.hp == _lastHp)    return;
+
+            _lastHp = self.hp;
+            _onChanged();
+        }
+
+        public void Unload()
+        {
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+            On.HealthManager.Start      -= OnHealthManagerStart;
+            On.HealthManager.TakeDamage -= OnHealthManagerTakeDamage;
+        }
+    }
+}

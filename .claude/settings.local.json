@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:\\\\Users\\\\KHUser\\\\Desktop\\\\HollowKnight_AI\\\\venv\\\\Lib\\\\site-packages\" && ls -d *.dist-info 2>/dev/null | sed 's/-[0-9.]*\\\\.dist-info//' | sort)",
+      "Bash(cd \"C:\\\\Users\\\\KHUser\\\\Desktop\\\\HollowKnight_AI\" && ls -la venv/Lib/site-packages/ | grep -E \"\\\\.txt$|\\\\.md$|\\\\.json$|\\\\.yaml$\" | head -20)",
+      "Bash(cd \"C:\\\\Users\\\\KHUser\\\\Desktop\\\\HollowKnight_AI\" && ls -laR . 2>/dev/null | grep -v \"^d\" | grep -E \"\\\\.py$|\\\\.md$|\\\\.txt$|\\\\.yaml$|\\\\.json$|Makefile|setup\" | head -303)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:steamdb.info)",
+      "WebSearch",
+      "WebFetch(domain:steamcommunity.com)",
+      "WebFetch(domain:hollowknight.fandom.com)",
+      "WebFetch(domain:thunderstore.io)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/18/Insiders/MSBuild/Current/Bin/MSBuild.exe\" \"C:\\\\Users\\\\KHUser\\\\Desktop\\\\HollowKnight_AI\\\\mod\\\\HKAIBridge\\\\HKAIBridge.csproj\" /p:Configuration=Debug 2>&1)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/18/Insiders/MSBuild/Current/Bin/MSBuild.exe\" HKAIBridge.csproj /p:Configuration=Debug)",
+      "Bash(source venv/Scripts/activate)",
+      "Bash(python -c \"import cutie; print\\(cutie.__file__\\)\")",
+      "Bash(python src/check_env.py)",
+      "Bash(ls ~/Desktop/HollowKnight_AI/*.py)",
+      "Read(//c/Users/KHUser/**)"
+    ]
+  }
+}

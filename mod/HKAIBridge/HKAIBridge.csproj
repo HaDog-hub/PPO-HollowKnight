@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>HKAIBridge</AssemblyName>
+    <RootNamespace>HKAIBridge</RootNamespace>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+    <Optimize>true</Optimize>
+
+    <!-- 修改此路徑為你的 Hollow Knight 安裝目錄 -->
+    <GamePath Condition="'$(GamePath)' == ''">D:\Steam\steamapps\common\Hollow Knight</GamePath>
+    <ManagedPath>$(GamePath)\hollow_knight_Data\Managed</ManagedPath>
+    <ModsPath>$(GamePath)\hollow_knight_Data\Managed\Mods\HKAIBridge</ModsPath>
+  </PropertyGroup>
+
+  <!-- 建置後自動複製 DLL 到 Mods 資料夾 -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <MakeDir Directories="$(ModsPath)" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(ModsPath)" />
+  </Target>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedPath)\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedPath)\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedPath)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SceneManagement">
+      <HintPath>$(ManagedPath)\UnityEngine.SceneManagementModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+<Reference Include="MMHOOK_Assembly-CSharp">
+      <HintPath>$(ManagedPath)\MMHOOK_Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
