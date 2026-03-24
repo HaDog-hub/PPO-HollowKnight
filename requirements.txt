@@ -1,0 +1,25 @@
+# Core RL
+stable_baselines3==2.7.1
+gymnasium==1.2.3
+
+# Deep Learning
+torch==2.10.0+cu128
+torchvision==0.25.0+cu128
+
+# Computer Vision
+opencv-python==4.13.0.92
+pillow==12.1.1
+numpy==2.2.6
+
+# Cutie (video object segmentation)
+# Install separately: pip install -e git+https://github.com/hkchengrex/Cutie.git
+einops==0.8.2
+omegaconf==2.3.0
+hydra-core==1.3.2
+
+# Screen capture & input
+mss==10.1.0
+pynput==1.8.1
+
+# Logging
+tensorboard==2.20.0

@@ -1,9 +1,0 @@
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.csproj.AssemblyReference.cache
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.AssemblyInfoInputs.cache
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.AssemblyInfo.cs
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.csproj.CoreCompileInputs.cache
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\bin\Debug\net472\HKAIBridge.dll
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\bin\Debug\net472\HKAIBridge.pdb
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.dll
-C:\Users\KHUser\Desktop\HollowKnight_AI\mod\HKAIBridge\obj\Debug\net472\HKAIBridge.pdb
