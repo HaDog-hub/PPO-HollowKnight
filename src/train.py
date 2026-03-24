@@ -17,6 +17,7 @@ train.py — PPO 訓練主腳本
 import os
 import sys
 import glob
+import shutil
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
@@ -42,6 +43,10 @@ ENT_COEF      = 0.02
 LOG_DIR        = f"logs/{BOSS_NAME}/"
 CHECKPOINT_DIR = f"checkpoints/{BOSS_NAME}/"
 FINAL_MODEL    = f"checkpoints/{BOSS_NAME}/hk_ppo_final"
+
+if FORCE_FRESH and os.path.exists(LOG_DIR):
+    shutil.rmtree(LOG_DIR)
+    print(f"舊 log 已清除：{LOG_DIR}")
 
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
